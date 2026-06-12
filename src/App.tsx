@@ -264,7 +264,7 @@ export function App() {
         <div className="max-w-7xl mx-auto mt-4 pt-4 border-t border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[11px] text-slate-600">
           <div className="flex items-center space-x-2">
             <span className="bg-slate-800 text-amber-400 font-mono font-bold px-2 py-0.5 rounded-md border border-slate-700">
-              v1.0.0g_BETA
+              v1.0.0h_BETA
             </span>
             <span>
               Autore:{' '}
