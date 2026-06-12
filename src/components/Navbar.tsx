@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {t.title}
             </h1>
             <p className="text-xs text-slate-400 hidden md:block">
-              {t.recreatedFor} · <span className="text-amber-400/80 font-mono">v1.0.0g_BETA</span> · by PiBOH
+              {t.recreatedFor} · <span className="text-amber-400/80 font-mono">v1.0.0h_BETA</span> · by PiBOH
             </p>
           </div>
         </div>
