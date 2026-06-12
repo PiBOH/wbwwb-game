@@ -226,28 +226,93 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       // --- CLIMAX MASSACRE AUTOMATED SCRIPT ---
       if (currentPhase === 'CLIMAX_MASSACRE') {
         climaxCutsceneTimerRef.current += 1;
-        
-        // Every 30 frames, two random non-couple, non-cricket living figures fight & die
-        if (climaxCutsceneTimerRef.current % 35 === 0 && climaxCutsceneTimerRef.current < 450) {
-          const livingFighters = peeps.filter(p => !p.isCricket && p.emotion !== 'in_love' && p.emotion !== 'dead');
-          if (livingFighters.length >= 2) {
-            // Pick two targets and kill them with blood
-            const victim1 = livingFighters[0];
-            const victim2 = livingFighters[1];
-            victim1.emotion = 'dead';
-            victim2.emotion = 'dead';
-            victim1.bloodPool = 10 + Math.random() * 40;
-            victim2.bloodPool = 10 + Math.random() * 40;
-            shakeTimeRef.current = 8;
-            soundManager.playShout();
-            soundManager.playPop();
+
+        // Ogni ~90 frame (~1.5s) inizia un nuovo "duello": un attaccante punta una vittima
+        if (climaxCutsceneTimerRef.current % 90 === 0 && climaxCutsceneTimerRef.current < 1700) {
+          const available = peeps.filter(p => 
+            !p.isCricket && 
+            p.emotion !== 'in_love' && 
+            p.emotion !== 'dead' &&
+            !p.attackingTargetId
+          );
+          if (available.length >= 2) {
+            // Scegli attaccante (preferibilmente armato/folle) e vittima a caso
+            const sorted = [...available].sort((a, b) => {
+              const aArmed = (a.emotion === 'armed' || a.emotion === 'crazed') ? 0 : 1;
+              const bArmed = (b.emotion === 'armed' || b.emotion === 'crazed') ? 0 : 1;
+              return aArmed - bArmed;
+            });
+            const attacker = sorted[0];
+            const victimCandidates = available.filter(p => p.id !== attacker.id);
+            const victim = victimCandidates[Math.floor(Math.random() * victimCandidates.length)];
+            
+            if (victim) {
+              attacker.attackingTargetId = victim.id;
+              attacker.attackTimer = 0;
+              attacker.attackPhase = 'approaching';
+              if (attacker.emotion !== 'crazed') attacker.emotion = 'armed';
+            }
           }
         }
 
-        // At frame 500, trigger EPILOGUE
-        if (climaxCutsceneTimerRef.current === 500) {
+        // Aggiorna gli attacchi in corso
+        peeps.forEach(attacker => {
+          if (!attacker.attackingTargetId || attacker.emotion === 'dead') return;
+          const victim = peeps.find(p => p.id === attacker.attackingTargetId);
+          if (!victim || victim.emotion === 'dead') {
+            attacker.attackingTargetId = undefined;
+            attacker.attackPhase = 'done';
+            return;
+          }
+
+          attacker.attackTimer = (attacker.attackTimer || 0) + 1;
+
+          if (attacker.attackPhase === 'approaching') {
+            // Muoviti verso la vittima
+            const adx = victim.x - attacker.x;
+            const ady = victim.y - attacker.y;
+            const adist = Math.hypot(adx, ady);
+            if (adist > 50) {
+              attacker.x += (adx / adist) * 3.2;
+              attacker.y += (ady / adist) * 3.2;
+              attacker.vx = adx / adist * 3.2;
+              attacker.vy = ady / adist * 3.2;
+            } else {
+              // Vicino abbastanza: inizia lo swing
+              attacker.attackPhase = 'swinging';
+              attacker.attackTimer = 0;
+              attacker.shouting = true;
+              attacker.shoutTimer = 25;
+              soundManager.playShout();
+            }
+          } else if (attacker.attackPhase === 'swinging') {
+            // Animazione swing per 20 frame
+            if (attacker.attackTimer === 12) {
+              // Impatto: la vittima muore
+              victim.emotion = 'dead';
+              victim.bloodPool = 18 + Math.random() * 30;
+              victim.killedById = attacker.id;
+              victim.deathFlashTimer = 15;
+              shakeTimeRef.current = 6;
+              soundManager.playPop();
+            }
+            if (attacker.attackTimer >= 25) {
+              attacker.attackPhase = 'done';
+              attacker.attackingTargetId = undefined;
+            }
+          }
+        });
+
+        // Decremento del flash di morte
+        peeps.forEach(p => {
+          if (p.deathFlashTimer && p.deathFlashTimer > 0) {
+            p.deathFlashTimer -= 1;
+          }
+        });
+
+        // A frame 1850 (~30 sec) il massacro finisce e parte l'epilogo
+        if (climaxCutsceneTimerRef.current === 1850) {
           soundManager.playBoom();
-          // Filter dead peeps
           const fallen = peeps.filter(p => p.emotion === 'dead');
           onMassacreEnd(fallen);
         }
@@ -416,17 +481,22 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           }
         }
 
-        if (dist > 5 && !peep.shouting) {
-          peep.vx = (dx / dist) * speed;
-          peep.vy = (dy / dist) * speed;
-          peep.x += peep.vx;
-          peep.y += peep.vy;
-        } else if (dist <= 5) {
-          const newT = getRandomTarget();
-          peep.targetX = newT.x;
-          peep.targetY = newT.y;
-          if (peep.isCricket) {
-            soundManager.playCricket();
+        // Salta la AI normale se sta attaccando: il movimento è gestito dallo script del massacro
+        const isAttacking = peep.attackingTargetId && (peep.attackPhase === 'approaching' || peep.attackPhase === 'swinging');
+
+        if (!isAttacking) {
+          if (dist > 5 && !peep.shouting) {
+            peep.vx = (dx / dist) * speed;
+            peep.vy = (dy / dist) * speed;
+            peep.x += peep.vx;
+            peep.y += peep.vy;
+          } else if (dist <= 5) {
+            const newT = getRandomTarget();
+            peep.targetX = newT.x;
+            peep.targetY = newT.y;
+            if (peep.isCricket) {
+              soundManager.playCricket();
+            }
           }
         }
 
@@ -632,13 +702,52 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           ctx.fillRect(peep.radius - 2, -2, 8, 12);
         }
 
-        // Draw Weapons if armed
-        if (peep.emotion === 'armed') {
-          ctx.fillStyle = '#78350f';
+        // Draw Weapons if armed (con animazione swing durante l'attacco)
+        if (peep.emotion === 'armed' || peep.emotion === 'crazed') {
           ctx.save();
-          ctx.rotate(Math.PI / 4);
-          ctx.fillRect(peep.radius - 5, -25, 8, 35);
+          // Angolo del bastone: di base in diagonale, durante swing ruota velocemente
+          let weaponAngle = Math.PI / 4;
+          if (peep.attackPhase === 'swinging') {
+            const t = (peep.attackTimer || 0) / 25;
+            // Swing: parte alzato indietro, scatta in avanti al frame 12, poi torna
+            if (t < 0.48) {
+              weaponAngle = -Math.PI / 2 + t * 1.5; // alzato indietro
+            } else {
+              weaponAngle = Math.PI / 1.5 - (t - 0.48) * 1.2; // colpo in avanti
+            }
+          }
+          // Direzione verso la vittima
+          const victim = peep.attackingTargetId ? peeps.find(p => p.id === peep.attackingTargetId) : null;
+          const facingRight = victim ? victim.x > peep.x : peep.vx >= 0;
+          if (!facingRight) {
+            ctx.scale(-1, 1);
+          }
+          ctx.rotate(weaponAngle);
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(peep.radius - 5, -28, 8, 38);
+          // Estremità del bastone più scura
+          ctx.fillStyle = '#451a03';
+          ctx.fillRect(peep.radius - 7, -32, 12, 8);
           ctx.restore();
+        }
+
+        // Lampo bianco di "impatto" sopra la vittima appena uccisa
+        if (peep.deathFlashTimer && peep.deathFlashTimer > 0) {
+          const alpha = peep.deathFlashTimer / 15;
+          ctx.fillStyle = `rgba(239, 68, 68, ${alpha * 0.7})`;
+          ctx.beginPath();
+          ctx.arc(0, 0, peep.radius + 12, 0, Math.PI * 2);
+          ctx.fill();
+          // "BAM!" text
+          if (peep.deathFlashTimer > 8) {
+            ctx.fillStyle = '#fef08a';
+            ctx.strokeStyle = '#7f1d1d';
+            ctx.lineWidth = 3;
+            ctx.font = 'bold 18px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.strokeText('BAM!', 0, -peep.radius - 18);
+            ctx.fillText('BAM!', 0, -peep.radius - 18);
+          }
         }
 
         ctx.restore();

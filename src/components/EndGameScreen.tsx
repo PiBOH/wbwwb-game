@@ -32,29 +32,29 @@ export const EndGameScreen: React.FC<EndGameScreenProps> = ({
           <Flame className="w-10 h-10 animate-pulse" />
         </div>
 
-        <h2 className="text-2xl sm:text-4xl font-black tracking-tight mb-2 text-white uppercase">
-          #SIAMO_DIVENTATI_CIO_CHE_ABBIAMO_GUARDATO
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2 text-white">
+          #DiventiamoCiòCheGuardiamo
         </h2>
         
-        <p className="text-xs sm:text-sm font-medium text-slate-400 max-w-lg mb-6 leading-relaxed">
+        <p className="text-xs sm:text-sm text-slate-400 max-w-lg mb-6 leading-relaxed">
           {language === 'it' 
-            ? "Il ciclo sensazionalista dei media ha trasformato piccole incomprensioni in una strage. Solo la coppia innamorata e i grilli sono rimasti per commemorare i caduti davanti alla TV."
-            : "The sensationalist news cycle turned small grievances into an absolute bloodshed. Only the couple and the crickets remained to pay their respects to the fallen."
+            ? "Restano solo la coppia e i grilli, seduti davanti alla TV."
+            : "Only the couple and the crickets remain, sitting in front of the TV."
           }
         </p>
 
         {/* Memorial TV & Candele Scene Container (Post-credits) */}
         <div className="bg-slate-950 border border-slate-800 p-6 rounded-2xl w-full mb-8 shadow-inner relative">
-          <h3 className="text-xs font-mono font-black uppercase tracking-wider text-amber-400 mb-4 flex items-center justify-center space-x-2">
+          <h3 className="text-xs font-mono uppercase tracking-wider text-amber-400 mb-4 flex items-center justify-center space-x-2">
             <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>{language === 'it' ? 'Memoriale: la Coppia in lutto davanti alla TV' : 'Epilogue: The Couple mourning before the TV'}</span>
+            <span>{language === 'it' ? 'Epilogo' : 'Epilogue'}</span>
           </h3>
 
           <div className="flex flex-col items-center justify-center py-4 space-y-6">
             
             {/* The TV Screen representing the past events */}
             <div className="w-48 h-32 bg-slate-900 border-4 border-slate-700 rounded-2xl flex flex-col items-center justify-center shadow-lg relative overflow-hidden">
-              <span className="text-xs font-black text-red-500 font-mono tracking-tighter uppercase animate-pulse">#TUTTI_ODIANO_TUTTI</span>
+              <span className="text-xs font-bold text-red-500 font-mono tracking-tight animate-pulse">#TuttiOdianoTutti</span>
               <div className="absolute bottom-1 w-20 h-1 bg-red-500/40 rounded" />
             </div>
 
@@ -110,18 +110,13 @@ export const EndGameScreen: React.FC<EndGameScreenProps> = ({
           </div>
         </div>
 
-        {/* Philosophical Reflection Box */}
-        <div className="bg-slate-950/60 border border-slate-800/80 p-5 rounded-2xl w-full mb-8 text-left space-y-2.5">
-          <p className="text-xs sm:text-sm text-slate-300 font-medium flex items-start">
-            <span className="text-red-500 font-black mr-2.5">•</span>
-            <span>"{t.story.finalMessage1}"</span>
+        {/* Citazioni finali */}
+        <div className="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl w-full mb-6 text-left space-y-2">
+          <p className="text-xs sm:text-sm text-slate-300 italic">
+            "{t.story.finalMessage1}"
           </p>
-          <p className="text-xs sm:text-sm text-slate-300 font-medium flex items-start">
-            <span className="text-red-500 font-black mr-2.5">•</span>
-            <span>"{t.story.finalMessage2}"</span>
-          </p>
-          <p className="text-xs text-slate-400 italic pt-2 border-t border-slate-800/80 text-center">
-            {t.story.finalMessage3}
+          <p className="text-xs sm:text-sm text-slate-400 italic">
+            "{t.story.finalMessage2}"
           </p>
         </div>
 
@@ -166,16 +161,15 @@ export const EndGameScreen: React.FC<EndGameScreenProps> = ({
 
         </div>
 
-        {/* Footer Link / Original Masterpiece Credit */}
-        <div className="pt-4 border-t border-slate-800/80 w-full flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-          <span>{t.madeWith}</span>
+        {/* Credits */}
+        <div className="pt-4 border-t border-slate-800/80 w-full flex items-center justify-center text-xs text-slate-500">
           <a
-            href="https://ncase.me/wbwwb/"
+            href="https://github.com/ncase"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-slate-400 hover:text-amber-400 transition-colors flex items-center space-x-1 underline font-medium"
+            className="text-slate-400 hover:text-amber-400 transition-colors flex items-center space-x-1 underline"
           >
-            <span>Original 2016 game by Nicky Case</span>
+            <span>Gioco originale di Nicky Case (2016)</span>
             <ExternalLink className="w-3 h-3" />
           </a>
         </div>

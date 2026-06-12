@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Tv, AlertTriangle } from 'lucide-react';
+import { Sparkles, AlertTriangle } from 'lucide-react';
 import { CapturedPhoto, Language } from '../types/game';
 import { translations } from '../utils/translations';
 
@@ -20,16 +20,13 @@ export const TVOverlay: React.FC<TVOverlayProps> = ({ latestPhoto, language }) =
       return;
     }
 
-    // Nuova foto scattata o aggiornata
     setVisible(true);
     setIsLeaving(false);
 
-    // Timer per iniziare l'animazione di scomparsa dopo 3.2 secondi
     const leaveTimer = setTimeout(() => {
       setIsLeaving(true);
     }, 3200);
 
-    // Timer per rimuovere completamente il componente dopo che l'animazione è conclusa
     const hideTimer = setTimeout(() => {
       setVisible(false);
     }, 3500);
@@ -46,52 +43,49 @@ export const TVOverlay: React.FC<TVOverlayProps> = ({ latestPhoto, language }) =
   const isBoring = latestPhoto.headline === t.story.boringHeadline || latestPhoto.headline === t.story.cricketHeadline;
 
   return (
-    <div className={`absolute bottom-4 right-4 z-30 max-w-md w-[92%] sm:w-[26rem] pointer-events-none select-none transition-all ${
+    <div className={`absolute bottom-3 right-3 z-30 pointer-events-none select-none transition-all ${
       isLeaving ? 'animate-slide-out-right' : 'animate-slide-in-right'
     }`}>
-      <div className={`overflow-hidden rounded-2xl shadow-2xl border-4 transition-all duration-300 relative ${
+      <div className={`overflow-hidden rounded-xl shadow-xl border-2 transition-all duration-300 relative w-fit max-w-[min(90vw,28rem)] ${
         isPeace 
-          ? 'bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 border-yellow-300 text-white shadow-pink-500/50' 
+          ? 'bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 border-yellow-300 text-white' 
           : isBoring
-          ? 'bg-slate-800/95 border-slate-600 text-slate-300 shadow-slate-900/50'
-          : 'bg-gradient-to-r from-red-700 via-red-800 to-slate-900 border-red-500 text-white shadow-red-900/80'
+          ? 'bg-slate-800/95 border-slate-600 text-slate-300'
+          : 'bg-gradient-to-r from-red-700 via-red-800 to-slate-900 border-red-500 text-white'
       }`}>
         
         {/* Top Ticker Bar */}
-        <div className={`px-4 py-1.5 flex items-center justify-between text-xs font-black tracking-widest uppercase ${
+        <div className={`px-2.5 py-0.5 flex items-center justify-between text-[10px] font-bold tracking-wider uppercase gap-3 ${
           isPeace ? 'bg-black/30 text-yellow-300' : isBoring ? 'bg-slate-900 text-slate-400' : 'bg-black/60 text-red-400'
         }`}>
-          <div className="flex items-center space-x-2">
-            {isPeace ? <Sparkles className="w-4 h-4 animate-spin text-yellow-300" /> : <AlertTriangle className="w-4 h-4 animate-bounce" />}
-            <span>{isPeace ? 'EDIZIONE STRAORDINARIA' : isBoring ? 'NOTIZIA SECONDARIA' : 'BREAKING NEWS'}</span>
+          <div className="flex items-center space-x-1.5">
+            {isPeace ? <Sparkles className="w-3 h-3 animate-spin text-yellow-300" /> : <AlertTriangle className="w-3 h-3 animate-bounce" />}
+            <span>{isPeace ? 'Edizione speciale' : isBoring ? 'Notizia minore' : 'Breaking news'}</span>
           </div>
-          <div className="flex items-center space-x-1.5 opacity-80">
-            <Tv className="w-3.5 h-3.5" />
-            <span>WBWWB TELEVISION</span>
-          </div>
+          <span className="opacity-60">WBWWB</span>
         </div>
 
         {/* Content Bar */}
-        <div className="p-4 sm:p-5 flex items-center space-x-4 backdrop-blur-sm">
+        <div className="px-2.5 py-2 flex items-center gap-2.5">
           
           {/* Captured Thumbnail Snippet */}
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border-2 border-white/60 shadow-inner flex-shrink-0 bg-slate-950">
+          <div className="w-12 h-12 rounded-md overflow-hidden border border-white/40 flex-shrink-0 bg-slate-950">
             <img 
               src={latestPhoto.imageData} 
               alt="Snap" 
-              className="w-full h-full object-cover animate-pulse" 
+              className="w-full h-full object-cover" 
             />
           </div>
 
-          {/* Headline and Subheadline */}
-          <div className="flex-1 min-w-0">
-            <h2 className={`text-xl sm:text-2xl font-black tracking-tight truncate ${
+          {/* Headline and Subheadline (Auto-width) */}
+          <div className="min-w-0 flex-shrink">
+            <h2 className={`text-sm font-bold tracking-tight whitespace-nowrap ${
               isPeace ? 'text-yellow-200' : isBoring ? 'text-slate-300' : 'text-white'
             }`}>
               {latestPhoto.headline}
             </h2>
-            <p className={`text-xs sm:text-sm font-semibold mt-1 leading-snug ${
-              isPeace ? 'text-pink-100 font-bold' : isBoring ? 'text-slate-400' : 'text-red-100'
+            <p className={`text-[11px] mt-0.5 leading-tight whitespace-nowrap overflow-hidden text-ellipsis ${
+              isPeace ? 'text-pink-100' : isBoring ? 'text-slate-400' : 'text-red-100'
             }`}>
               {latestPhoto.subheadline}
             </p>
@@ -100,9 +94,9 @@ export const TVOverlay: React.FC<TVOverlayProps> = ({ latestPhoto, language }) =
         </div>
 
         {/* Visual Countdown Timer Bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40 overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black/40 overflow-hidden">
           <div 
-            className={`h-full transition-all duration-[3200ms] ease-linear w-0 ${
+            className={`h-full transition-all duration-[3200ms] ease-linear ${
               isPeace ? 'bg-yellow-300' : isBoring ? 'bg-slate-400' : 'bg-white'
             }`} 
             style={{ width: isLeaving ? '0%' : '100%' }}

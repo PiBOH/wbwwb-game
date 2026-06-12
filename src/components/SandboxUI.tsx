@@ -130,7 +130,7 @@ export const SandboxUI: React.FC<SandboxUIProps> = ({
           <div className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 flex-1">
             <input
               type="text"
-              placeholder="#TITOLO_VIRALE"
+              placeholder="#TitoloVirale"
               value={customHead}
               onChange={(e) => setCustomHead(e.target.value)}
               className="bg-slate-950 border border-slate-700 focus:border-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-mono uppercase focus:outline-none w-full sm:w-40"

@@ -38,6 +38,12 @@ export interface Peep {
   isFancy?: boolean; // The guy who shoots at the climax
   deadAlpha?: number;
   bloodPool?: number;
+  // Sistema di attacco visibile durante il massacro
+  attackingTargetId?: string;
+  attackTimer?: number; // frame counter: 0 = inizia attacco, sale fino a swing peak
+  attackPhase?: 'approaching' | 'swinging' | 'done';
+  killedById?: string; // ID dell'attaccante che l'ha uccisa
+  deathFlashTimer?: number; // lampo rosso al momento della morte
 }
 
 export type StoryPhase =

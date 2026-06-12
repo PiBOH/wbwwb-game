@@ -80,7 +80,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {photos.map((photo, index) => {
-                const isPeace = photo.headline === '#LA_PACE_E_NOIOSA' || photo.headline === '#PEACE_IS_BORING';
+                const isPeace = photo.headline === '#LaPaceÈNoiosa' || photo.headline === '#PeaceIsBoring';
                 const isImportant = photo.isImportant;
 
                 return (
